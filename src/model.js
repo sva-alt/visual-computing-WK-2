@@ -75,39 +75,52 @@ class Bird {
 }
 
 class SlingShot {
-    constructor(bird){
+    constructor(bird, img) {
         this.sling = Constraint.create({
             pointA: {
                 x: bird.body.position.x,
-                y: bird.body.position.y
+                y: bird.body.position.y,
             },
-            bodyB: bird.body, 
+            bodyB: bird.body,
             stiffness: 0.05,
-            length: 5
+            length: 5,
         });
 
+        this.slingImage = img; 
+        this.pointA = this.sling.pointA; 
         World.add(world, this.sling);
-
     }
 
-    show(){
+    show() {
+        const { x: x1, y: y1 } = this.pointA;
+
+
+        if (this.slingImage) {
+            image(this.slingImage, x1 - 50, y1 - 20, 80, 100);
+        }
+
+
         if (this.sling.bodyB) {
-        line(this.sling.pointA.x, 
-            this.sling.pointA.y, 
-            this.sling.bodyB.position.x, 
-            this.sling.bodyB.position.y, 
-        )
+            const { x: x2, y: y2 } = this.sling.bodyB.position;
+
+            stroke(48, 22, 8); 
+            strokeWeight(4);
+            line(x1, y1, x2, y2);
         }
     }
 
     fly(mc) {
-        if(this.sling.bodyB && mc.mouse.button == -1 &&
-            this.sling.bodyB.position.x > this.sling.pointA.x + 20) {
-                this.sling.bodyB.collisionFilter.category = 1;
-                this.sling.bodyB = null;
+        if (
+            this.sling.bodyB &&
+            mc.mouse.button == -1 &&
+            this.sling.bodyB.position.x > this.pointA.x + 20
+        ) {
+            this.sling.bodyB.collisionFilter.category = 1;
+            this.sling.bodyB = null; 
         }
     }
-    attach(bird){
-        this.sling.bodyB = bird.body;
+
+    attach(bird) {
+        this.sling.bodyB = bird.body; 
     }
 }
