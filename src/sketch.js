@@ -22,6 +22,7 @@ function preload(){
   redImg = loadImage("img/RedBird.png")
   crateImg = loadImage("img/crate.png")
   grassImg = loadImage("img/grass.jpg")
+  slingImg = loadImage("img/slingshot.png")
 }
 
 function setup() {
@@ -53,8 +54,8 @@ function setup() {
       boxes.push(box);
     }
   }
-  bird = new Bird(150, 350, 20, 2, redImg);
-  slingShot = new SlingShot(bird);
+  bird = new Bird(120, 380, 20, 2, redImg);
+  slingShot = new SlingShot(bird,slingImg);
 
 }
 
@@ -74,7 +75,7 @@ function draw() {
 function keyPressed(){
   if (key == ' ') {
     World.remove(world, bird.body);
-    bird = new Bird(150, 350, 20, 2, redImg);
+    bird = new Bird(120, 380, 20, 2, redImg);
     slingShot.attach(bird);
   }
 
