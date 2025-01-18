@@ -46,10 +46,11 @@ function preload(){
 
 function setup() {
   const canvas = createCanvas(640, 480);
-  startFlag = true;
   if (gameSound) {
     gameSound.loop();
   }
+  startFlag = true;
+  
 
   engine = Engine.create();
   world = engine.world;
