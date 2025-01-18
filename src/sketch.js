@@ -24,7 +24,11 @@ grassImg,
 pigImg,
 bgImg,
 startFlag = true
+gameSound, 
+slingshotSound,
+launchSound,
 lives = 3;
+
 
 function preload(){
   startImg = loadImage("img/start.png")
@@ -34,11 +38,18 @@ function preload(){
   slingImg = loadImage("img/slingshot.png")
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
+
+  gameSound = loadSound("sound/background.mp3");
+  launchSound = loadSound("sound/bird_launch.mp3");
+  slingshotSound = loadSound("sound/slingshot.mp3");
 }
 
 function setup() {
   const canvas = createCanvas(640, 480);
   startFlag = true;
+  if (gameSound) {
+    gameSound.loop();
+  }
 
   engine = Engine.create();
   world = engine.world;
