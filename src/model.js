@@ -31,6 +31,7 @@ class Box {
     }
     reduceDurability(amount) {
         this.durability -= amount;
+        score += amount;
         if (this.durability <= 0) {
             World.remove(world, this.body);
         }
@@ -79,7 +80,7 @@ class Bird {
 }
 
 class Pig {
-    constructor(x, y, r, img) {
+    constructor(x, y, r, img,durability) {
         this.body = Bodies.circle(x, y, r, {
             restitution: 0.5,
             collisionFilter: {
@@ -88,7 +89,19 @@ class Pig {
         });
         this.img = img;
         this.r = r;
+        this.durability = durability;
+        this.isRemoved = false;
         World.add(world, this.body);
+    }
+
+    reduceDurability(amount) {
+        this.durability -= amount;
+        score += amount;
+        if (this.durability <= 0 && !this.isRemoved) {
+            World.remove(world, this.body);
+            score += 10000;
+            this.isRemoved = true; // Marcar como eliminado
+        }
     }
 
     show() {
