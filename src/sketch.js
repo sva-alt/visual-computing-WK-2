@@ -11,6 +11,7 @@ let engine,
 world,
 ground,
 bird,
+birdTrajectory = [].
 slingShot,
 boxes = [],
 pigs = [],
@@ -29,7 +30,7 @@ function preload(){
   startImg = loadImage("img/start.png")
   redImg = loadImage("img/RedBird.png")
   crateImg = loadImage("img/crate.png")
-  grassImg = loadImage("img/grass.jpg")
+  grassImg = loadImage("img/grass.png")
   slingImg = loadImage("img/slingshot.png")
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
@@ -57,8 +58,7 @@ function setup() {
 
 
   ground = new Ground(width/2, height-10, width, 20, grassImg);
-  const birdLifetime = 700; // Vida útil del pájaro en frames
-  const boxLifetime = birdLifetime + 180; // 3 segundos más (60 frames por segundo * 3 segundos)
+  const birdLifetime = 500; // Vida útil del pájaro en frames
 
   for (let j = 0; j<4; j++){
     for (let i=0; i<10; i++){
@@ -72,36 +72,39 @@ function setup() {
   slingShot = new SlingShot(bird,slingImg);
   pigs.push(new Pig(500, 300, 20, pigImg, 100));
   pigs.push(new Pig(550, 300, 20, pigImg, 100));
+  Matter.Events.on(engine, 'collisionStart', function(event) {
+    if (!birdLaunched) return; // No reducir durabilidad si el pájaro no ha sido lanzado
 
-    Matter.Events.on(engine, 'collisionStart', function(event) {
-      if (!birdLaunched) return; // No reducir durabilidad si el pájaro no ha sido lanzado
+    const pairs = event.pairs;
+    for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        const { bodyA, bodyB } = pair;
 
-      const pairs = event.pairs;
-      for (let i = 0; i < pairs.length; i++) {
-          const pair = pairs[i];
-          const { bodyA, bodyB } = pair;
-
-          boxes.forEach(box => {
-              if (box.body === bodyA || box.body === bodyB) {
-                  if ( bodyA === bird.body || bodyB === bird.body) {
-                      box.reduceDurability(70);
-                  }if (bodyA === ground.body || bodyB === ground.body) {
+        boxes.forEach(box => {
+            if (box.body === bodyA || box.body === bodyB) {
+                if (bodyA === bird.body || bodyB === bird.body) {
+                    box.reduceDurability(70);
+                    bird.hasCollided = true; // Marcar el pájaro como chocado
+                }
+                if (bodyA === ground.body || bodyB === ground.body) {
                     box.reduceDurability(50);
                 }
-              }
-          });
+            }
+        });
 
-          pigs.forEach(pig => {
-              if (pig.body === bodyA || pig.body === bodyB) {
-                  if (bodyA === bird.body || bodyB === bird.body) {
-                      pig.reduceDurability(70);
-                  }if (bodyA === ground.body || bodyB === ground.body) {
-                      pig.reduceDurability(70);
-                  }
-              }
-          });
-      }
-    });
+        pigs.forEach(pig => {
+            if (pig.body === bodyA || pig.body === bodyB) {
+                if (bodyA === bird.body || bodyB === bird.body) {
+                    pig.reduceDurability(70);
+                    bird.hasCollided = true; // Marcar el pájaro como chocado
+                }
+                if (bodyA === ground.body || bodyB === ground.body) {
+                    pig.reduceDurability(70);
+                }
+            }
+        });
+    }
+});
   }
 
 function draw() {
@@ -110,7 +113,7 @@ function draw() {
     image(startImg, 0, 0, width, height, 0, 0, startImg.width, startImg.height, CONTAIN);
     console.log(width, height);
   }
-  else 
+  else
   {
     background(0, 181, 226);
     background(bgImg);
@@ -155,6 +158,8 @@ function draw() {
 
   }
 }
+
+
 
 function keyPressed(){
   while (startFlag == true)

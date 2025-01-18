@@ -55,6 +55,9 @@ class Bird {
         this.img = img;
         this.r = r;
         this.lifetime = lifetime;
+        this.launched = false;
+        this.trajectory = [];
+        this.hasCollided = false;
         Body.setMass(this.body, mass);
         World.add(world, this.body);
     }
@@ -72,10 +75,25 @@ class Bird {
             imageMode(CENTER);
             image(this.img, 0, 0, 2 * this.body.circleRadius, 2 * this.body.circleRadius);
             pop();
-            this.lifetime--;
+            if (this.launched && !this.hasCollided) {
+                this.lifetime--;
+
+                this.trajectory.push([this.body.position.x, this.body.position.y]);
+            }
         } else {
             World.remove(world, this.body);
         }
+
+        // Dibujar la trayectoria siempre, independientemente de hasCollided
+        push();
+        stroke(255, 0, 0);
+        strokeWeight(8);
+        for (let i = 0; i < this.trajectory.length; i+=3) {
+            point(this.trajectory[i][0], this.trajectory[i][1]);
+        }
+        pop();
+
+
     }
 }
 
@@ -157,6 +175,8 @@ class SlingShot {
         ) {
             this.sling.bodyB.collisionFilter.category = 1;
             this.sling.bodyB = null;
+            birdLaunched = true;
+            bird.launched = true;
         }
     }
 
