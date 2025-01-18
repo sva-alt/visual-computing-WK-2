@@ -75,9 +75,10 @@ class Bird {
             imageMode(CENTER);
             image(this.img, 0, 0, 2 * this.body.circleRadius, 2 * this.body.circleRadius);
             pop();
-            if (this.launched && !this.hasCollided) {
+            if (this.launched ) {
                 this.lifetime--;
-
+            }
+            if (this.launched && !this.hasCollided) {
                 this.trajectory.push([this.body.position.x, this.body.position.y]);
             }
         } else {

@@ -58,7 +58,7 @@ function setup() {
 
 
   ground = new Ground(width/2, height-10, width, 20, grassImg);
-  const birdLifetime = 500; // Vida útil del pájaro en frames
+  const birdLifetime = 300; // Vida útil del pájaro en frames
 
   for (let j = 0; j<4; j++){
     for (let i=0; i<10; i++){
@@ -146,6 +146,7 @@ function draw() {
           pigs.splice(i, 1);
       }
     }
+
     if (bird.lifetime <= 0 && lives <= 0)
     {
       push();
@@ -170,7 +171,7 @@ function keyPressed(){
     if (lives > 0)
     {
       World.remove(world, bird.body);
-      bird = new Bird(120, 380, 20, 2, redImg, 700);
+      bird = new Bird(120, 380, 20, 2, redImg, 300);
       slingShot.attach(bird);
       birdLaunched = false;
       lives -= 1;
