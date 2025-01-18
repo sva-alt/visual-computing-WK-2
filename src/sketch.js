@@ -23,7 +23,7 @@ crateImg,
 grassImg,
 pigImg,
 bgImg,
-startFlag = true
+startFlag = true,
 gameSound, 
 slingshotSound,
 launchSound,
