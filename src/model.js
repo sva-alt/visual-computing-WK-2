@@ -1,11 +1,12 @@
 class Box {
-    constructor(x, y, w, h, img, options={}){
+    constructor(x, y, w, h, img,durability = 100, options={}){
         this.body = Bodies.rectangle(
             x, y, w, h, options
         );
         this.w = w;
         this.h = h;
         this.img = img;
+        this.durability = durability;
         World.add(world, this.body);
 
     }
@@ -14,41 +15,47 @@ class Box {
         push();
         //rectMode(CENTER);
         translate(
-            this.body.position.x, 
-            this.body.position.y, 
+            this.body.position.x,
+            this.body.position.y,
         )
         rotate(this.body.angle);
         /*rect(
-            0, 
             0,
-            this.w, 
+            0,
+            this.w,
             this.h
         );*/
         imageMode(CENTER);
         image(this.img, 0, 0, this.w, this.h);
         pop();
     }
+    reduceDurability(amount) {
+        this.durability -= amount;
+        if (this.durability <= 0) {
+            World.remove(world, this.body);
+        }
+    }
 }
 
 class Ground extends Box {
-    constructor(x, y, w, h, img){
-        super(x, y, w, h, img, {isStatic: true})
-
+    constructor(x, y, w, h, img) {
+        super(x, y, w, h, img, 1000, { isStatic: true });
     }
 }
 
 class Bird {
-    constructor(x, y, r, mass, img){
+    constructor(x, y, r, mass, img, lifetime=500){
         this.body = Bodies.circle(x, y, r, {
-            restitution: 0.5,  
+            restitution: 0.5,
             collisionFilter: {
                 category: 2
             }
         });
         this.img = img;
+        this.r = r;
+        this.lifetime = lifetime;
         Body.setMass(this.body, mass);
         World.add(world, this.body);
-
     }
 
     show(){
@@ -57,19 +64,39 @@ class Bird {
             2*this.body.circleRadius,
             2*this.body.circleRadius
         );*/
+        if (this.lifetime > 0) {
+            push();
+            translate(this.body.position.x, this.body.position.y);
+            rotate(this.body.angle);
+            imageMode(CENTER);
+            image(this.img, 0, 0, 2 * this.body.circleRadius, 2 * this.body.circleRadius);
+            pop();
+            this.lifetime--;
+        } else {
+            World.remove(world, this.body);
+        }
+    }
+}
+
+class Pig {
+    constructor(x, y, r, img) {
+        this.body = Bodies.circle(x, y, r, {
+            restitution: 0.5,
+            collisionFilter: {
+                category: 2
+            }
+        });
+        this.img = img;
+        this.r = r;
+        World.add(world, this.body);
+    }
+
+    show() {
         push();
-        translate(
-            this.body.position.x,
-            this.body.position.y
-        );
+        translate(this.body.position.x, this.body.position.y);
         rotate(this.body.angle);
         imageMode(CENTER);
-        image(this.img,
-            0,
-            0,
-            2*this.body.circleRadius,
-            2*this.body.circleRadius
-        );
+        image(this.img, 0, 0, 2 * this.r, 2 * this.r);
         pop();
     }
 }
@@ -86,8 +113,8 @@ class SlingShot {
             length: 5,
         });
 
-        this.slingImage = img; 
-        this.pointA = this.sling.pointA; 
+        this.slingImage = img;
+        this.pointA = this.sling.pointA;
         World.add(world, this.sling);
     }
 
@@ -103,7 +130,7 @@ class SlingShot {
         if (this.sling.bodyB) {
             const { x: x2, y: y2 } = this.sling.bodyB.position;
 
-            stroke(48, 22, 8); 
+            stroke(48, 22, 8);
             strokeWeight(4);
             line(x1, y1, x2, y2);
         }
@@ -116,11 +143,11 @@ class SlingShot {
             this.sling.bodyB.position.x > this.pointA.x + 20
         ) {
             this.sling.bodyB.collisionFilter.category = 1;
-            this.sling.bodyB = null; 
+            this.sling.bodyB = null;
         }
     }
 
     attach(bird) {
-        this.sling.bodyB = bird.body; 
+        this.sling.bodyB = bird.body;
     }
 }
