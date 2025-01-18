@@ -147,7 +147,7 @@ function draw() {
       }
     }
 
-    if (bird.lifetime <= 0 && lives <= 0)
+    if (bird.lifetime <= 0 && lives <= 0 || pigs.length === 0)
     {
       push();
       filter(BLUR, 3);
@@ -168,7 +168,7 @@ function keyPressed(){
     startFlag = false;
   }
   if (key == ' ' && startFlag == false) {
-    if (lives > 0)
+    if (lives > 0 && birdLaunched)
     {
       World.remove(world, bird.body);
       bird = new Bird(120, 380, 20, 2, redImg, 300);

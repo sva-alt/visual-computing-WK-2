@@ -83,6 +83,7 @@ class Bird {
             }
         } else {
             World.remove(world, this.body);
+            keyPressed();
         }
 
         // Dibujar la trayectoria siempre, independientemente de hasCollided
