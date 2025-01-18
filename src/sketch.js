@@ -20,7 +20,8 @@ birdLaunched = false,
 redImg,
 crateImg,
 grassImg,
-pigImg;
+pigImg,
+bgImg;
 
 function preload(){
   redImg = loadImage("img/RedBird.png")
@@ -28,6 +29,7 @@ function preload(){
   grassImg = loadImage("img/grass.jpg")
   slingImg = loadImage("img/slingshot.png")
   pigImg = loadImage("img/pig.png");
+  bgImg = loadImage("img/bg.png");
 }
 
 function setup() {
@@ -100,7 +102,7 @@ function setup() {
 
 function draw() {
   background(0, 181, 226);
-
+  background(bgImg);
   fill(255);
   textSize(24);
   text(`Score: ${score}`, 10, 30);
