@@ -174,6 +174,13 @@ class SlingShot {
             mc.mouse.button == -1 &&
             this.sling.bodyB.position.x > this.pointA.x + 20
         ) {
+
+            if (launchSound) {
+              setTimeout(() => {
+                launchSound.play();
+            }, 100);
+              slingshotSound.play();
+        }
             this.sling.bodyB.collisionFilter.category = 1;
             this.sling.bodyB = null;
             birdLaunched = true;
