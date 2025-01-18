@@ -21,9 +21,11 @@ redImg,
 crateImg,
 grassImg,
 pigImg,
-bgImg;
+bgImg,
+startFlag = true;
 
 function preload(){
+  startImg = loadImage("img/start.png")
   redImg = loadImage("img/RedBird.png")
   crateImg = loadImage("img/crate.png")
   grassImg = loadImage("img/grass.jpg")
@@ -34,6 +36,7 @@ function preload(){
 
 function setup() {
   const canvas = createCanvas(640, 480);
+  startFlag = true;
 
   engine = Engine.create();
   world = engine.world;
@@ -101,39 +104,51 @@ function setup() {
   }
 
 function draw() {
-  background(0, 181, 226);
-  background(bgImg);
-  fill(255);
-  textSize(24);
-  text(`Score: ${score}`, 10, 30);
-
-  Engine.update(engine);
-  slingShot.fly(mc);
-  if (!birdLaunched && bird.body.velocity.x !== 0 && bird.body.velocity.y !== 0) {
-    birdLaunched = true; // Actualizar la bandera cuando el pájaro sea lanzado
+  if (startFlag == true)
+  {
+    image(startImg, 0, 0, width, height, 0, 0, startImg.width, startImg.height, CONTAIN);
+    console.log(width, height);
   }
-  ground.show();
-  for(const box of boxes) {
-    box.show();
-  }
-  slingShot.show();
-  bird.show();
+  else 
+  {
+    background(0, 181, 226);
+    background(bgImg);
+    fill(255);
+    textSize(24);
+    text(`Score: ${score}`, 10, 30);
 
-  for (let i = pigs.length - 1; i >= 0; i--) {
-    const pig = pigs[i];
-    pig.show();
-    // Verificar si el cerdo está fuera de la pantalla
-    if (pig.body.position.x < 0 || pig.body.position.x > width || pig.body.position.y < 0 || pig.body.position.y > height) {
-        pig.reduceDurability(pig.durability); // Reducir la durabilidad a 0
+    Engine.update(engine);
+    slingShot.fly(mc);
+    if (!birdLaunched && bird.body.velocity.x !== 0 && bird.body.velocity.y !== 0) {
+      birdLaunched = true; // Actualizar la bandera cuando el pájaro sea lanzado
     }
-    // Eliminar el cerdo del arreglo si está marcado como eliminado
-    if (pig.isRemoved) {
-        pigs.splice(i, 1);
+    ground.show();
+    for(const box of boxes) {
+      box.show();
     }
-}
+    slingShot.show();
+    bird.show();
+
+    for (let i = pigs.length - 1; i >= 0; i--) {
+      const pig = pigs[i];
+      pig.show();
+      // Verificar si el cerdo está fuera de la pantalla
+      if (pig.body.position.x < 0 || pig.body.position.x > width || pig.body.position.y < 0 || pig.body.position.y > height) {
+          pig.reduceDurability(pig.durability); // Reducir la durabilidad a 0
+      }
+      // Eliminar el cerdo del arreglo si está marcado como eliminado
+      if (pig.isRemoved) {
+          pigs.splice(i, 1);
+      }
+    }
+  }
 }
 
 function keyPressed(){
+  while (startFlag == true)
+  {
+    startFlag = false;
+  }
   if (key == ' ') {
     World.remove(world, bird.body);
     bird = new Bird(120, 380, 20, 2, redImg, 700);
