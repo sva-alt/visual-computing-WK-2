@@ -45,7 +45,7 @@ class Ground extends Box {
 }
 
 class Bird {
-    constructor(x, y, r, mass, img, lifetime=500){
+    constructor(x, y, r, mass, img, lifetime=250){
         this.body = Bodies.circle(x, y, r, {
             restitution: 0.5,
             collisionFilter: {

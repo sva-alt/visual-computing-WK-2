@@ -22,7 +22,8 @@ crateImg,
 grassImg,
 pigImg,
 bgImg,
-startFlag = true;
+startFlag = true
+lives = 3;
 
 function preload(){
   startImg = loadImage("img/start.png")
@@ -116,6 +117,7 @@ function draw() {
     fill(255);
     textSize(24);
     text(`Score: ${score}`, 10, 30);
+    text(`Lives: ${lives}`, 10, 60);
 
     Engine.update(engine);
     slingShot.fly(mc);
@@ -141,6 +143,16 @@ function draw() {
           pigs.splice(i, 1);
       }
     }
+    if (bird.lifetime <= 0 && lives <= 0)
+    {
+      push();
+      filter(BLUR, 3);
+      textAlign(CENTER);
+      textSize(24);
+      text(`Game Over \nScore: ${score}`, width/2, height/2);
+      pop();
+    }
+
   }
 }
 
@@ -149,10 +161,14 @@ function keyPressed(){
   {
     startFlag = false;
   }
-  if (key == ' ') {
-    World.remove(world, bird.body);
-    bird = new Bird(120, 380, 20, 2, redImg, 700);
-    slingShot.attach(bird);
-    birdLaunched = false;
+  if (key == ' ' && startFlag == false) {
+    if (lives > 0)
+    {
+      World.remove(world, bird.body);
+      bird = new Bird(120, 380, 20, 2, redImg, 700);
+      slingShot.attach(bird);
+      birdLaunched = false;
+      lives -= 1;
+    }
   }
 }
