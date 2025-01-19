@@ -47,9 +47,7 @@ function preload(){
   starImg = loadImage("img/stars.png")
   customFont = loadFont("font/AG-font.ttf");
 
-  gameSound = loadSound("sound/background.mp3", () => {
-    console.log("gameSound loaded successfully");
-  });
+  gameSound = loadSound("sound/background.mp3");
   slingshotSound = loadSound("sound/slingshot.mp3");
   gameOverSound = loadSound("sound/game_over.mp3");
 
@@ -65,9 +63,9 @@ function preload(){
 
 function setup() {
   const canvas = createCanvas(640, 480);
-  if (gameSound) {
+  /*if (gameSound) {
     gameSound.loop();
-  }
+  }*/
   startFlag = true;
 
 
@@ -86,6 +84,8 @@ function setup() {
   });
 
   World.add(world, mc);
+
+
 
 
   ground = new Ground(width/2, height-10, width, 20, grassImg);
@@ -244,6 +244,9 @@ function keyPressed(){
   while (startFlag == true)
   {
     startFlag = false;
+  }
+  if (gameSound) {
+    gameSound.loop();
   }
   if (key == ' ' && startFlag == false) {
     if (lives > 0 && birdLaunched)
