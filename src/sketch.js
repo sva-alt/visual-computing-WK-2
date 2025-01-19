@@ -31,7 +31,8 @@ gameOverSound,
 gameOverSoundPlayed = false,
 launchSounds = [],
 pigSounds = [],
-lives = 3;
+lives = 3,
+stars= 0;
 
 
 function preload(){
