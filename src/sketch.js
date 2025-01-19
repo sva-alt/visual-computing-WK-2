@@ -25,7 +25,7 @@ pigImg,
 bgImg,
 startFlag = true,
 isGameOver = false,
-gameSound, 
+gameSound,
 slingshotSound,
 gameOverSound,
 gameOverSoundPlayed = false,
@@ -43,16 +43,16 @@ function preload(){
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
 
-  
-  
+
+
   launchSounds.push(loadSound("sound/bird_launch1.mp3"));
   launchSounds.push(loadSound("sound/bird_launch2.mp3"));
   launchSounds.push(loadSound("sound/bird_launch3.mp3"));
-  
+
   pigSounds.push(loadSound("sound/hit_pig.mp3"));
   pigSounds.push(loadSound("sound/hit_pig1.mp3"));
   pigSounds.push(loadSound("sound/hit_pig2.mp3"));
-  
+
   gameSound = loadSound("sound/background.mp3");
   slingshotSound = loadSound("sound/slingshot.mp3");
   gameOverSound = loadSound("sound/game_over.mp3");
@@ -64,7 +64,7 @@ function setup() {
     gameSound.loop();
   }
   startFlag = true;
-  
+
 
   engine = Engine.create();
   world = engine.world;
@@ -123,7 +123,7 @@ function setup() {
                 if (bodyA === bird.body || bodyB === bird.body) {
                     pig.reduceDurability(70);
                     bird.hasCollided = true; // Marcar el pájaro como chocado
-                    
+
                 }
                 if (bodyA === ground.body || bodyB === ground.body) {
                     pig.reduceDurability(70);
@@ -148,6 +148,11 @@ function draw() {
     textSize(24);
     text(`Score: ${score}`, 10, 30);
     text(`Lives: ${lives}`, 10, 60);
+
+        // Dibujar estrellas
+        for (let i = 0; i < stars; i++) {
+          image(starImg, 10 + i * 30, 90, 20, 20); // Ajusta la posición y tamaño de las estrellas según sea necesario
+        }
 
     Engine.update(engine);
     if (!isGameOver) {
@@ -183,17 +188,17 @@ function draw() {
     if (bird.lifetime <= 0 && lives <= 0 || pigs.length === 0)
     {
 
-      if (!gameOverSoundPlayed) {  
+      if (!gameOverSoundPlayed) {
         if (gameOverSound) {
           gameSound.stop()
           gameOverSound.play();
         }
-        gameOverSoundPlayed = true; 
+        gameOverSoundPlayed = true;
         isGameOver = true;
-        
+
         World.remove(world, mc); //mouse constraint
-        mc = null; 
-    
+        mc = null;
+
       }
       push();
       filter(BLUR, 3);
@@ -201,6 +206,13 @@ function draw() {
       textSize(24);
       text(`Game Over \nScore: ${score}`, width/2, height/2);
       pop();
+    }
+
+    if (pigs.length === 0) {
+      textAlign(CENTER);
+      textSize(24);
+      fill(255);
+      text("End Level", width / 2, 120); // Ajusta la posición según sea necesario
     }
 
   }
