@@ -43,6 +43,7 @@ function preload(){
   slingImg = loadImage("img/slingshot.png")
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
+  starImg = loadImage("img/stars.png")
 
 
 
@@ -185,6 +186,11 @@ function draw() {
                     }
       }
     }
+
+        // Incrementar estrellas cada 8000 puntos, máximo 3 estrellas
+        if (score >= 6500 * (stars + 1) && stars < 3) {
+          stars++;
+        }
 
     if (bird.lifetime <= 0 && lives <= 0 || pigs.length === 0)
     {
