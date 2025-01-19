@@ -102,10 +102,40 @@ function setup() {
   ground = new Ground(width/2, height-10, width, 20, grassImg);
   const birdLifetime = 300; // Vida útil del pájaro en frames
 
-  for (let j = 0; j<4; j++){
-    for (let i=0; i<10; i++){
+ for (let j = 0; j<3; j++){
+    for (let i=0; i<3; i++){
       const box = new Box(
-        400 + 50*j, height - 40*i, 40, 40, crateImg,100
+        400 + 100*j, height - 40*i, 40, 40, crateImg,100
+      );
+      boxes.push(box);
+    }
+  }
+  
+  const box = new Box(
+        500 ,380 , 280, 10, crateImg,100
+      );
+      boxes.push(box);
+    
+   for (let j = 0; j<2; j++){
+    for (let i=0; i<2; i++){
+      const box = new Box(
+        450 + 100*j, 280, 40, 40, crateImg,100
+      );
+      boxes.push(box);
+    }
+  }
+  
+
+   const box1 = new Box(
+        500 ,140, 200, 10, crateImg,100
+      );
+      boxes.push(box1);
+  
+  
+     for (let j = 0; j<2; j++){
+    for (let i=0; i<1; i++){
+      const box = new Box(
+        450 + 100*j, 280, 40, 40, crateImg,100
       );
       boxes.push(box);
     }
