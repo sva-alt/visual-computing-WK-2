@@ -38,7 +38,7 @@ function preload(){
   startImg = loadImage("img/start.png")
   redImg = loadImage("img/RedBird.png")
   crateImg = loadImage("img/crate.png")
-  grassImg = loadImage("img/grass.jpg")
+  grassImg = loadImage("img/grass.png")
   slingImg = loadImage("img/slingshot.png")
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
