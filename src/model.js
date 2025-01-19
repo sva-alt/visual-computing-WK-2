@@ -1,5 +1,5 @@
 class Box {
-    constructor(x, y, w, h, img,durability = 100, options={}){
+    constructor(x, y, w, h, img, durability = 100, options = {}) {
         this.body = Bodies.rectangle(
             x, y, w, h, options
         );
@@ -8,32 +8,26 @@ class Box {
         this.img = img;
         this.durability = durability;
         World.add(world, this.body);
-
     }
 
-    show(){
+    show() {
         push();
-        //rectMode(CENTER);
         translate(
             this.body.position.x,
             this.body.position.y,
         )
         rotate(this.body.angle);
-        /*rect(
-            0,
-            0,
-            this.w,
-            this.h
-        );*/
         imageMode(CENTER);
         image(this.img, 0, 0, this.w, this.h);
         pop();
     }
+
     reduceDurability(amount) {
         this.durability -= amount;
         score += amount;
         if (this.durability <= 0) {
             World.remove(world, this.body);
+            cajas += 1; // Incrementar correctamente el contador de cajas eliminadas
         }
     }
 }

@@ -33,7 +33,8 @@ launchSounds = [],
 pigSounds = [],
 lives = 3,
 stars= 0,
-customFont;
+customFont,
+cajas=0;
 
 
 function preload(){
@@ -63,9 +64,7 @@ function preload(){
 
 function setup() {
   const canvas = createCanvas(640, 480);
-  /*if (gameSound) {
-    gameSound.loop();
-  }*/
+
   startFlag = true;
 
 
@@ -103,6 +102,7 @@ function setup() {
   slingShot = new SlingShot(bird,slingImg);
   pigs.push(new Pig(500, 300, 20, pigImg, 100));
   pigs.push(new Pig(550, 300, 20, pigImg, 100));
+
   Matter.Events.on(engine, 'collisionStart', function(event) {
     if (!birdLaunched) return; // No reducir durabilidad si el pájaro no ha sido lanzado
 
@@ -111,30 +111,31 @@ function setup() {
         const pair = pairs[i];
         const { bodyA, bodyB } = pair;
 
-        boxes.forEach(box => {
+        for (let j = boxes.length - 1; j >= 0; j--) {
+            const box = boxes[j];
             if (box.body === bodyA || box.body === bodyB) {
-                if (bodyA === bird.body || bodyB === bird.body) {
-                    box.reduceDurability(70);
+                if (bodyA === bird.body || bodyB === bird.body || bodyA === ground.body || bodyB === ground.body) {
+                    box.reduceDurability(100);
                     bird.hasCollided = true; // Marcar el pájaro como chocado
                 }
-                if (bodyA === ground.body || bodyB === ground.body) {
-                    box.reduceDurability(50);
+                if (box.durability <= 0) {
+                    boxes.splice(j, 1); // Eliminar la caja del arreglo
                 }
             }
-        });
+        }
 
-        pigs.forEach(pig => {
+        for (let j = pigs.length - 1; j >= 0; j--) {
+            const pig = pigs[j];
             if (pig.body === bodyA || pig.body === bodyB) {
-                if (bodyA === bird.body || bodyB === bird.body) {
+                if (bodyA === bird.body || bodyB === bird.body || bodyA === ground.body || bodyB === ground.body) {
                     pig.reduceDurability(70);
                     bird.hasCollided = true; // Marcar el pájaro como chocado
-
                 }
-                if (bodyA === ground.body || bodyB === ground.body) {
-                    pig.reduceDurability(70);
+                if (pig.durability <= 0 && pig.isRemoved) {
+                    pigs.splice(j, 1); // Eliminar el cerdo del arreglo
                 }
             }
-        });
+        }
     }
 });
   }
@@ -152,8 +153,10 @@ function draw() {
     fill(255);
     textSize(24);
     textFont(customFont);
-    text(`Score: ${score}`, 10, 30);
-      // Mostrar "Lives:" seguido de las imágenes del pájaro
+    //text(`Score: ${score}`, 10, 30);
+    text(`Cajas restantes: ${cajas}`, 10, 30);
+
+    // Mostrar "Lives:" seguido de las imágenes del pájaro
     text(`Lives:`, 10, 70);
     for (let i = 0; i < lives; i++) {
       image(redImg, 80 + i * 30, 50, 30, 30); // Ajusta la posición y tamaño de las imágenes según sea necesario
@@ -166,10 +169,10 @@ function draw() {
 
     Engine.update(engine);
     if (!isGameOver) {
-    slingShot.fly(mc);
-    if (!birdLaunched && bird.body.velocity.x !== 0 && bird.body.velocity.y !== 0) {
-      birdLaunched = true; // Actualizar la bandera cuando el pájaro sea lanzado
-    }
+      slingShot.fly(mc);
+      if (!birdLaunched && bird.body.velocity.x !== 0 && bird.body.velocity.y !== 0) {
+        birdLaunched = true; // Actualizar la bandera cuando el pájaro sea lanzado
+      }
     }
     ground.show();
     for(const box of boxes) {
@@ -200,7 +203,7 @@ function draw() {
           stars++;
         }
 
-    if (bird.lifetime <= 0 && lives <= 0 || pigs.length === 0)
+    if (bird.lifetime <= 0 && lives <= 0 )
     {
 
       if (!gameOverSoundPlayed) {
@@ -244,10 +247,11 @@ function keyPressed(){
   while (startFlag == true)
   {
     startFlag = false;
+    if (!gameSound.isPlaying()) {
+      gameSound.loop();
+    }
   }
-  if (gameSound) {
-    gameSound.loop();
-  }
+
   if (key == ' ' && startFlag == false) {
     if (lives > 0 && birdLaunched)
     {
