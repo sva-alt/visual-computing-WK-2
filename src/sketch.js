@@ -27,7 +27,7 @@ startFlag = true,
 isGameOver = false,
 gameSound, 
 slingshotSound,
-gameOverSound;
+gameOverSound,
 gameOverSoundPlayed = false,
 launchSounds = [],
 pigSounds = [],
