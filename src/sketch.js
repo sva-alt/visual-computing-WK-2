@@ -49,8 +49,6 @@ function preload(){
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
   starImg = loadImage("img/stars.png")
-  ELimg = loadImage("img/buttonEL.png")
-  //ButtonR = loadImage("img/buttonR.png")
   customFont = loadFont("font/AG-font.ttf");
 
   gameSound = loadSound("sound/background.mp3");
@@ -75,11 +73,46 @@ function setup() {
   startFlag = true;
 
 
+
   ButtonEL = createImg("img/buttonEL.png");
-  ButtonEL.position(width - 100, 0); // Ajusta la posición según sea necesario
+  ButtonEL.position(width - 120, 10); // Ajusta la posición según sea necesario
   ButtonEL.size(100, 50); // Ajusta el tamaño según sea necesario
   ButtonEL.hide();
   ButtonEL.mousePressed(handleButtonPress);
+
+  ButtonR = createImg("img/buttonR.png");
+  ButtonR.position(width - 200, 10); // Ajusta la posición según sea necesario
+  ButtonR.size(50, 50); // Ajusta el tamaño según sea necesario
+  ButtonR.hide();
+  ButtonR.mousePressed(resetGame);
+
+
+  function resetGame() {
+    // Reiniciar variables del juego
+    endLevel = false;
+    birds = [];
+    pigs = [];
+    boxes = [],
+    score = 0;
+    lives = 3;
+    stars= 0;
+    ButtonR.hide();
+    ButtonEL.hide();
+
+    // Detener y reiniciar el sonido del juego
+    if (gameSound.isPlaying()) {
+        gameSound.stop();
+    }
+    gameSound.loop();
+
+    // Reiniciar el motor de física
+    Engine.clear(engine);
+    engine = Engine.create();
+    world = engine.world;
+
+    // Volver a generar los objetos del juego
+    setup();
+}
 
 
 
@@ -217,6 +250,7 @@ function draw() {
       }
     }
     ground.show();
+    ButtonR.show();
     for(const box of boxes) {
       box.show();
     }
@@ -290,6 +324,12 @@ function draw() {
 
 
 }
+  function resetGame() {
+
+    endLevel = false;
+    startFlag = false;
+
+  }
 
 function handleButtonPress() {
   endLevel = true;
@@ -302,6 +342,8 @@ function keyPressed(){
     if (!gameSound.isPlaying()) {
       gameSound.loop();
     }
+
+
   }
 
   if (key == ' ' && startFlag == false) {
