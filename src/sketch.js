@@ -34,7 +34,10 @@ pigSounds = [],
 lives = 3,
 stars= 0,
 customFont,
-cajas=0;
+cajas=0,
+ButtonEL,
+endLevel=false,
+ButtonR;
 
 
 function preload(){
@@ -46,6 +49,8 @@ function preload(){
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
   starImg = loadImage("img/stars.png")
+  ELimg = loadImage("img/buttonEL.png")
+  //ButtonR = loadImage("img/buttonR.png")
   customFont = loadFont("font/AG-font.ttf");
 
   gameSound = loadSound("sound/background.mp3");
@@ -61,11 +66,21 @@ function preload(){
   pigSounds.push(loadSound("sound/hit_pig2.mp3"));
 
 }
-
+function allPigsEliminated() {
+  return pigs.length === 0;
+}
 function setup() {
   const canvas = createCanvas(640, 480);
 
   startFlag = true;
+
+
+  ButtonEL = createImg("img/buttonEL.png");
+  ButtonEL.position(width - 100, 0); // Ajusta la posición según sea necesario
+  ButtonEL.size(100, 50); // Ajusta el tamaño según sea necesario
+  ButtonEL.hide();
+  ButtonEL.mousePressed(handleButtonPress);
+
 
 
   engine = Engine.create();
@@ -83,9 +98,6 @@ function setup() {
   });
 
   World.add(world, mc);
-
-
-
 
   ground = new Ground(width/2, height-10, width, 20, grassImg);
   const birdLifetime = 300; // Vida útil del pájaro en frames
@@ -114,9 +126,12 @@ function setup() {
         for (let j = boxes.length - 1; j >= 0; j--) {
             const box = boxes[j];
             if (box.body === bodyA || box.body === bodyB) {
-                if (bodyA === bird.body || bodyB === bird.body || bodyA === ground.body || bodyB === ground.body) {
-                    box.reduceDurability(100);
-                    bird.hasCollided = true; // Marcar el pájaro como chocado
+                if (bodyA === bird.body || bodyB === bird.body) {
+                  box.reduceDurability(70);
+                  bird.hasCollided = true; // Marcar el pájaro como chocado
+                }
+                if (bodyA === ground.body || bodyB === ground.body) {
+                    box.reduceDurability(50);
                 }
                 if (box.durability <= 0) {
                     boxes.splice(j, 1); // Eliminar la caja del arreglo
@@ -153,11 +168,8 @@ function draw() {
     fill(255);
     textSize(24);
     textFont(customFont);
-    //text(`Score: ${score}`, 10, 30);
-    text(`Cajas restantes: ${cajas}`, 10, 30);
-
-    // Mostrar "Lives:" seguido de las imágenes del pájaro
-    text(`Lives:`, 10, 70);
+    text(`Score: ${score}`, 10, 30);
+    text(`Birds:`, 10, 70);
     for (let i = 0; i < lives; i++) {
       image(redImg, 80 + i * 30, 50, 30, 30); // Ajusta la posición y tamaño de las imágenes según sea necesario
   }
@@ -203,7 +215,7 @@ function draw() {
           stars++;
         }
 
-    if (bird.lifetime <= 0 && lives <= 0 )
+    if (bird.lifetime <= 0 && lives <= 0 || endLevel==true)
     {
 
       if (!gameOverSoundPlayed) {
@@ -225,23 +237,33 @@ function draw() {
       textFont(customFont);
 
      // Calcular la posición inicial para centrar las estrellas
-  const starWidth = 60;
-  const totalStarsWidth = stars * starWidth;
-  const startX = width / 2 - totalStarsWidth / 2;
+    const starWidth = 60;
+    const totalStarsWidth = stars * starWidth;
+    const startX = width / 2 - totalStarsWidth / 2;
 
-  // Mostrar el número de estrellas
-  for (let i = 0; i < stars; i++) {
-    image(starImg, startX + i * starWidth, height / 2 - 120, starWidth, starWidth); // Ajusta la posición y tamaño de las estrellas según sea necesario
-  }
+    // Mostrar el número de estrellas
+    for (let i = 0; i < stars; i++) {
+      image(starImg, startX + i * starWidth, height / 2 - 120, starWidth, starWidth); // Ajusta la posición y tamaño de las estrellas según sea necesario
+    }
 
-  text(`Game Over \nScore: ${score}`, width / 2, height / 2);
-  pop();
+    text(`Game Over \nScore: ${score}`, width / 2, height / 2);
+    pop();
     }
 
   }
+
+  if (allPigsEliminated()) {
+    ButtonEL.show();
+  } else {
+    ButtonEL.hide();
+  }
+
+
 }
 
-
+function handleButtonPress() {
+  endLevel = true;
+}
 
 function keyPressed(){
   while (startFlag == true)
