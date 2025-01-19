@@ -32,7 +32,8 @@ gameOverSoundPlayed = false,
 launchSounds = [],
 pigSounds = [],
 lives = 3,
-stars= 0;
+stars= 0,
+customFont;
 
 
 function preload(){
@@ -44,8 +45,13 @@ function preload(){
   pigImg = loadImage("img/pig.png");
   bgImg = loadImage("img/bg.png");
   starImg = loadImage("img/stars.png")
+  customFont = loadFont("font/AG-font.ttf");
 
-
+  gameSound = loadSound("sound/background.mp3", () => {
+    console.log("gameSound loaded successfully");
+  });
+  slingshotSound = loadSound("sound/slingshot.mp3");
+  gameOverSound = loadSound("sound/game_over.mp3");
 
   launchSounds.push(loadSound("sound/bird_launch1.mp3"));
   launchSounds.push(loadSound("sound/bird_launch2.mp3"));
@@ -55,9 +61,6 @@ function preload(){
   pigSounds.push(loadSound("sound/hit_pig1.mp3"));
   pigSounds.push(loadSound("sound/hit_pig2.mp3"));
 
-  gameSound = loadSound("sound/background.mp3");
-  slingshotSound = loadSound("sound/slingshot.mp3");
-  gameOverSound = loadSound("sound/game_over.mp3");
 }
 
 function setup() {
@@ -148,8 +151,13 @@ function draw() {
     background(bgImg);
     fill(255);
     textSize(24);
+    textFont(customFont);
     text(`Score: ${score}`, 10, 30);
-    text(`Lives: ${lives}`, 10, 60);
+      // Mostrar "Lives:" seguido de las imágenes del pájaro
+    text(`Lives:`, 10, 70);
+    for (let i = 0; i < lives; i++) {
+      image(redImg, 80 + i * 30, 50, 30, 30); // Ajusta la posición y tamaño de las imágenes según sea necesario
+  }
 
         // Dibujar estrellas
         for (let i = 0; i < stars; i++) {
@@ -211,15 +219,20 @@ function draw() {
       filter(BLUR, 3);
       textAlign(CENTER);
       textSize(24);
-      text(`Game Over \nScore: ${score}`, width/2, height/2);
-      pop();
-    }
+      textFont(customFont);
 
-    if (pigs.length === 0) {
-      textAlign(CENTER);
-      textSize(24);
-      fill(255);
-      text("End Level", width / 2, 120); // Ajusta la posición según sea necesario
+     // Calcular la posición inicial para centrar las estrellas
+  const starWidth = 60;
+  const totalStarsWidth = stars * starWidth;
+  const startX = width / 2 - totalStarsWidth / 2;
+
+  // Mostrar el número de estrellas
+  for (let i = 0; i < stars; i++) {
+    image(starImg, startX + i * starWidth, height / 2 - 120, starWidth, starWidth); // Ajusta la posición y tamaño de las estrellas según sea necesario
+  }
+
+  text(`Game Over \nScore: ${score}`, width / 2, height / 2);
+  pop();
     }
 
   }
