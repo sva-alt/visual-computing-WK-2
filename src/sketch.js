@@ -143,7 +143,7 @@ function setup() {
   bird = new Bird(120, 380, 20, 2, redImg,birdLifetime);
   slingShot = new SlingShot(bird,slingImg);
   pigs.push(new Pig(500, 300, 20, pigImg, 100));
-  pigs.push(new Pig(550, 300, 20, pigImg, 100));
+  pigs.push(new Pig(550, 100, 20, pigImg, 100));
 
   Matter.Events.on(engine, 'collisionStart', function(event) {
     if (!birdLaunched) return; // No reducir durabilidad si el pájaro no ha sido lanzado
