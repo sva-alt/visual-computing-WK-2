@@ -1,194 +1,226 @@
-class Box {
-    constructor(x, y, w, h, img,durability = 100, options={}){
-        this.body = Bodies.rectangle(
-            x, y, w, h, options
-        );
-        this.w = w;
-        this.h = h;
-        this.img = img;
-        this.durability = durability;
-        World.add(world, this.body);
+const {Engine,
+  World,
+  Bodies,
+  Body,
+  Constraint,
+  MouseConstraint,
+  Mouse
+} = Matter;
 
-    }
+let engine,
+world,
+ground,
+bird,
+birdTrajectory = [],
+slingShot,
+boxes = [],
+pigs = [],
+mc,
+score=0,
+birdLaunched = false,
+redImg,
+crateImg,
+grassImg,
+pigImg,
+bgImg,
+startFlag = true,
+isGameOver = false,
+gameSound, 
+slingshotSound,
+gameOverSound;
+gameOverSoundPlayed = false,
+launchSounds = [],
+pigSounds = [],
+lives = 3;
 
-    show(){
-        push();
-        //rectMode(CENTER);
-        translate(
-            this.body.position.x,
-            this.body.position.y,
-        )
-        rotate(this.body.angle);
-        /*rect(
-            0,
-            0,
-            this.w,
-            this.h
-        );*/
-        imageMode(CENTER);
-        image(this.img, 0, 0, this.w, this.h);
-        pop();
-    }
-    reduceDurability(amount) {
-        this.durability -= amount;
-        score += amount;
-        if (this.durability <= 0) {
-            World.remove(world, this.body);
-        }
-    }
+
+function preload(){
+  startImg = loadImage("img/start.png")
+  redImg = loadImage("img/RedBird.png")
+  crateImg = loadImage("img/crate.png")
+  grassImg = loadImage("img/grass.jpg")
+  slingImg = loadImage("img/slingshot.png")
+  pigImg = loadImage("img/pig.png");
+  bgImg = loadImage("img/bg.png");
+
+  
+  
+  launchSounds.push(loadSound("sound/bird_launch1.mp3"));
+  launchSounds.push(loadSound("sound/bird_launch2.mp3"));
+  launchSounds.push(loadSound("sound/bird_launch3.mp3"));
+  
+  pigSounds.push(loadSound("sound/hit_pig.mp3"));
+  pigSounds.push(loadSound("sound/hit_pig1.mp3"));
+  pigSounds.push(loadSound("sound/hit_pig2.mp3"));
+  
+  gameSound = loadSound("sound/background.mp3");
+  slingshotSound = loadSound("sound/slingshot.mp3");
+  gameOverSound = loadSound("sound/game_over.mp3");
 }
 
-class Ground extends Box {
-    constructor(x, y, w, h, img) {
-        super(x, y, w, h, img, 1000, { isStatic: true });
-    }
-}
+function setup() {
+  const canvas = createCanvas(640, 480);
+  if (gameSound) {
+    gameSound.loop();
+  }
+  startFlag = true;
+  
 
-class Bird {
-    constructor(x, y, r, mass, img, lifetime=250){
-        this.body = Bodies.circle(x, y, r, {
-            restitution: 0.5,
-            collisionFilter: {
-                category: 2
+  engine = Engine.create();
+  world = engine.world;
+
+  const mouse = Mouse.create(canvas.elt);
+  mouse.pixelRatio = pixelDensity();
+
+  mc = MouseConstraint.create(
+    engine, {
+      mouse: mouse,
+      collisionFilter:{
+        mask: 2
+      }
+  });
+
+  World.add(world, mc);
+
+
+  ground = new Ground(width/2, height-10, width, 20, grassImg);
+  const birdLifetime = 300; // Vida útil del pájaro en frames
+
+  for (let j = 0; j<4; j++){
+    for (let i=0; i<10; i++){
+      const box = new Box(
+        400 + 50*j, height - 40*i, 40, 40, crateImg,100
+      );
+      boxes.push(box);
+    }
+  }
+  bird = new Bird(120, 380, 20, 2, redImg,birdLifetime);
+  slingShot = new SlingShot(bird,slingImg);
+  pigs.push(new Pig(500, 300, 20, pigImg, 100));
+  pigs.push(new Pig(550, 300, 20, pigImg, 100));
+  Matter.Events.on(engine, 'collisionStart', function(event) {
+    if (!birdLaunched) return; // No reducir durabilidad si el pájaro no ha sido lanzado
+
+    const pairs = event.pairs;
+    for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        const { bodyA, bodyB } = pair;
+
+        boxes.forEach(box => {
+            if (box.body === bodyA || box.body === bodyB) {
+                if (bodyA === bird.body || bodyB === bird.body) {
+                    box.reduceDurability(70);
+                    bird.hasCollided = true; // Marcar el pájaro como chocado
+                }
+                if (bodyA === ground.body || bodyB === ground.body) {
+                    box.reduceDurability(50);
+                }
             }
         });
-        this.img = img;
-        this.r = r;
-        this.lifetime = lifetime;
-        this.launched = false;
-        this.trajectory = [];
-        this.hasCollided = false;
-        Body.setMass(this.body, mass);
-        World.add(world, this.body);
-    }
 
-    show(){
-        /*ellipse(this.body.position.x,
-            this.body.position.y,
-            2*this.body.circleRadius,
-            2*this.body.circleRadius
-        );*/
-        if (this.lifetime > 0) {
-            push();
-            translate(this.body.position.x, this.body.position.y);
-            rotate(this.body.angle);
-            imageMode(CENTER);
-            image(this.img, 0, 0, 2 * this.body.circleRadius, 2 * this.body.circleRadius);
-            pop();
-            if (this.launched ) {
-                this.lifetime--;
-            }
-            if (this.launched && !this.hasCollided) {
-                this.trajectory.push([this.body.position.x, this.body.position.y]);
-            }
-        } else {
-            World.remove(world, this.body);
-            keyPressed();
-        }
-
-        // Dibujar la trayectoria siempre, independientemente de hasCollided
-        push();
-        stroke(255, 0, 0);
-        strokeWeight(8);
-        for (let i = 0; i < this.trajectory.length; i+=3) {
-            point(this.trajectory[i][0], this.trajectory[i][1]);
-        }
-        pop();
-
-
-    }
-}
-
-class Pig {
-    constructor(x, y, r, img,durability) {
-        this.body = Bodies.circle(x, y, r, {
-            restitution: 0.5,
-            collisionFilter: {
-                category: 2
+        pigs.forEach(pig => {
+            if (pig.body === bodyA || pig.body === bodyB) {
+                if (bodyA === bird.body || bodyB === bird.body) {
+                    pig.reduceDurability(70);
+                    bird.hasCollided = true; // Marcar el pájaro como chocado
+                    
+                }
+                if (bodyA === ground.body || bodyB === ground.body) {
+                    pig.reduceDurability(70);
+                }
             }
         });
-        this.img = img;
-        this.r = r;
-        this.durability = durability;
-        this.isRemoved = false;
-        World.add(world, this.body);
+    }
+});
+  }
+
+function draw() {
+  if (startFlag == true)
+  {
+    image(startImg, 0, 0, width, height, 0, 0, startImg.width, startImg.height, CONTAIN);
+    console.log(width, height);
+  }
+  else
+  {
+    background(0, 181, 226);
+    background(bgImg);
+    fill(255);
+    textSize(24);
+    text(`Score: ${score}`, 10, 30);
+    text(`Lives: ${lives}`, 10, 60);
+
+    Engine.update(engine);
+    if (!isGameOver) {
+    slingShot.fly(mc);
+    if (!birdLaunched && bird.body.velocity.x !== 0 && bird.body.velocity.y !== 0) {
+      birdLaunched = true; // Actualizar la bandera cuando el pájaro sea lanzado
+    }
+    }
+    ground.show();
+    for(const box of boxes) {
+      box.show();
+    }
+    slingShot.show();
+    bird.show();
+
+    for (let i = pigs.length - 1; i >= 0; i--) {
+      const pig = pigs[i];
+      pig.show();
+      // Verificar si el cerdo está fuera de la pantalla
+      if (pig.body.position.x < 0 || pig.body.position.x > width || pig.body.position.y < 0 || pig.body.position.y > height) {
+          pig.reduceDurability(pig.durability); // Reducir la durabilidad a 0
+      }
+      // Eliminar el cerdo del arreglo si está marcado como eliminado
+      if (pig.isRemoved) {
+          pigs.splice(i, 1);
+        if (pigSounds.length > 0) {
+                      const randomSound = random(pigSounds);
+                      randomSound.play();
+                    }
+      }
     }
 
-    reduceDurability(amount) {
-        this.durability -= amount;
-        score += amount;
-        if (this.durability <= 0 && !this.isRemoved) {
-            World.remove(world, this.body);
-            score += 10000;
-            this.isRemoved = true; // Marcar como eliminado
+    if (bird.lifetime <= 0 && lives <= 0 || pigs.length === 0)
+    {
+
+      if (!gameOverSoundPlayed) {  
+        if (gameOverSound) {
+          gameSound.stop()
+          gameOverSound.play();
         }
+        gameOverSoundPlayed = true; 
+        isGameOver = true;
+        
+        World.remove(world, mc); //mouse constraint
+        mc = null; 
+    
+      }
+      push();
+      filter(BLUR, 3);
+      textAlign(CENTER);
+      textSize(24);
+      text(`Game Over \nScore: ${score}`, width/2, height/2);
+      pop();
     }
 
-    show() {
-        push();
-        translate(this.body.position.x, this.body.position.y);
-        rotate(this.body.angle);
-        imageMode(CENTER);
-        image(this.img, 0, 0, 2 * this.r, 2 * this.r);
-        pop();
-    }
+  }
 }
 
-class SlingShot {
-    constructor(bird, img) {
-        this.sling = Constraint.create({
-            pointA: {
-                x: bird.body.position.x,
-                y: bird.body.position.y,
-            },
-            bodyB: bird.body,
-            stiffness: 0.05,
-            length: 5,
-        });
 
-        this.slingImage = img;
-        this.pointA = this.sling.pointA;
-        World.add(world, this.sling);
+
+function keyPressed(){
+  while (startFlag == true)
+  {
+    startFlag = false;
+  }
+  if (key == ' ' && startFlag == false) {
+    if (lives > 0 && birdLaunched)
+    {
+      World.remove(world, bird.body);
+      bird = new Bird(120, 380, 20, 2, redImg, 300);
+      slingShot.attach(bird);
+      birdLaunched = false;
+      lives -= 1;
     }
-
-    show() {
-        const { x: x1, y: y1 } = this.pointA;
-
-
-        if (this.slingImage) {
-            image(this.slingImage, x1 - 50, y1 - 20, 80, 100);
-        }
-
-
-        if (this.sling.bodyB) {
-            const { x: x2, y: y2 } = this.sling.bodyB.position;
-
-            stroke(48, 22, 8);
-            strokeWeight(4);
-            line(x1, y1, x2, y2);
-        }
-    }
-
-    fly(mc) {
-        if (
-            this.sling.bodyB &&
-            mc.mouse.button == -1 &&
-            this.sling.bodyB.position.x > this.pointA.x + 20
-        ) {
-
-            if (launchSounds) {
-                 const randomLaunchSound = random(launchSounds);
-                 randomLaunchSound.play();
-                 slingshotSound.play();
-        }
-            this.sling.bodyB.collisionFilter.category = 1;
-            this.sling.bodyB = null;
-            birdLaunched = true;
-            bird.launched = true;
-        }
-    }
-
-    attach(bird) {
-        this.sling.bodyB = bird.body;
-    }
+  }
 }
