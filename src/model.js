@@ -176,11 +176,10 @@ class SlingShot {
             this.sling.bodyB.position.x > this.pointA.x + 20
         ) {
 
-            if (launchSound) {
-              setTimeout(() => {
-                launchSound.play();
-            }, 100);
-              slingshotSound.play();
+            if (launchSounds) {
+                 const randomLaunchSound = random(launchSounds);
+                 randomLaunchSound.play();
+                 slingshotSound.play();
         }
             this.sling.bodyB.collisionFilter.category = 1;
             this.sling.bodyB = null;
